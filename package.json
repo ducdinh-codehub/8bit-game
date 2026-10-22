@@ -1,6 +1,6 @@
 {
   "name": "8bit-arcade",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Retro 8-bit arcade games in your terminal: Mario-style platformer, Tetris, Snake, Duck Hunt and Galaga tributes with pixel graphics, chiptune sound and GIF recording. Play instantly with npx 8bit-arcade.",
   "type": "module",
   "bin": {
