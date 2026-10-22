@@ -1,0 +1,36 @@
+{
+  "name": "8bit-arcade",
+  "version": "0.1.0",
+  "description": "Retro 8-bit arcade in your terminal: a platformer, Snake, falling blocks and a duck shooter, with recording and sharing.",
+  "type": "module",
+  "bin": {
+    "8bit": "bin/8bit.js",
+    "8bit-arcade": "bin/8bit.js"
+  },
+  "files": [
+    "bin",
+    "src",
+    "README.md",
+    "LICENSE"
+  ],
+  "scripts": {
+    "start": "node bin/8bit.js",
+    "test": "node --test test/"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "keywords": [
+    "8bit",
+    "retro",
+    "arcade",
+    "terminal",
+    "cli",
+    "game",
+    "snake",
+    "platformer",
+    "nes"
+  ],
+  "author": "dinhduc4work@gmail.com",
+  "license": "MIT"
+}
