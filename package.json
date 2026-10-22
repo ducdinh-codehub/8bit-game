@@ -1,7 +1,7 @@
 {
   "name": "8bit-arcade",
   "version": "0.1.0",
-  "description": "Retro 8-bit arcade in your terminal: a platformer, Snake, falling blocks, a duck shooter and a space shooter, with recording and sharing.",
+  "description": "Retro 8-bit arcade games in your terminal: Mario-style platformer, Tetris, Snake, Duck Hunt and Galaga tributes with pixel graphics, chiptune sound and GIF recording. Play instantly with npx 8bit-arcade.",
   "type": "module",
   "bin": {
     "8bit": "bin/8bit.js",
@@ -22,15 +22,41 @@
   },
   "keywords": [
     "8bit",
+    "8-bit",
     "retro",
     "arcade",
-    "terminal",
-    "cli",
     "game",
-    "snake",
+    "games",
+    "terminal",
+    "terminal-game",
+    "cli",
+    "cli-game",
+    "console-game",
+    "tui",
+    "command-line",
+    "pixel-art",
+    "nes",
+    "chiptune",
+    "retro-games",
+    "mario",
     "platformer",
-    "nes"
+    "tetris",
+    "snake",
+    "duck-hunt",
+    "galaga",
+    "space-shooter",
+    "shooter",
+    "npx",
+    "fun"
   ],
   "author": "dinhduc4work@gmail.com",
-  "license": "MIT"
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ducdinh-codehub/8bit-game.git"
+  },
+  "homepage": "https://github.com/ducdinh-codehub/8bit-game#readme",
+  "bugs": {
+    "url": "https://github.com/ducdinh-codehub/8bit-game/issues"
+  }
 }

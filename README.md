@@ -10,11 +10,11 @@ npx 8bit-arcade
 
 | Pipe Runner | Blockfall | Duck Blaster |
 | :-: | :-: | :-: |
-| ![Pipe Runner](docs/pipe-runner.gif) | ![Blockfall](docs/blockfall.gif) | ![Duck Blaster](docs/duck-blaster.gif) |
+| ![Pipe Runner](https://raw.githubusercontent.com/ducdinh-codehub/8bit-game/main/docs/pipe-runner.gif) | ![Blockfall](https://raw.githubusercontent.com/ducdinh-codehub/8bit-game/main/docs/blockfall.gif) | ![Duck Blaster](https://raw.githubusercontent.com/ducdinh-codehub/8bit-game/main/docs/duck-blaster.gif) |
 
 | Star Striker | Snake |
 | :-: | :-: |
-| ![Star Striker](docs/star-striker.gif) | ![Snake](docs/snake.gif) |
+| ![Star Striker](https://raw.githubusercontent.com/ducdinh-codehub/8bit-game/main/docs/star-striker.gif) | ![Snake](https://raw.githubusercontent.com/ducdinh-codehub/8bit-game/main/docs/snake.gif) |
 
 _Every GIF above was recorded by the arcade's own recorder._
 
