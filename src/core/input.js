@@ -45,6 +45,19 @@ export function parseInput(str) {
           events.push({ type: 'mouse', x: x - 1, y: y - 1, button, action });
           continue;
         }
+        if (params === '' && final === 'M' && i + 3 <= str.length) {
+          // Legacy X10 mouse: ESC [ M then button, x, y each as a byte + 32.
+          const b = str.charCodeAt(i) - 32;
+          const x = str.charCodeAt(i + 1) - 32;
+          const y = str.charCodeAt(i + 2) - 32;
+          i += 3;
+          const motion = !!(b & 32);
+          const button = b & 3;
+          let action = button === 3 ? 'up' : motion ? 'move' : 'down';
+          if (b & 64) action = button === 0 ? 'wheelup' : 'wheeldown';
+          events.push({ type: 'mouse', x: x - 1, y: y - 1, button: button === 3 ? 0 : button, action });
+          continue;
+        }
         if (params.startsWith('?')) continue; // query responses
         const fields = params.split(';');
         const [codeStr] = (fields[0] || '').split(':');

@@ -2,8 +2,9 @@ import Blockfall from './blockfall.js';
 import DuckBlaster from './duck-blaster.js';
 import PipeRunner from './pipe-runner/index.js';
 import Snake from './snake.js';
+import StarStriker from './star-striker.js';
 
-export const GAMES = [PipeRunner, Snake, Blockfall, DuckBlaster];
+export const GAMES = [PipeRunner, Snake, Blockfall, DuckBlaster, StarStriker];
 
 const norm = (s) => String(s).toLowerCase().replace(/[^a-z0-9]/g, '');
 

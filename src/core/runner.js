@@ -13,15 +13,17 @@ const STEP_MS = 1000 / 60;
 
 // Centred box with lines of text, drawn on top of the game.
 export function drawPanel(fb, lines, { color = C.WHITE, border = C.WHITE, bg = C.BLACK } = {}) {
-  const w = Math.min(fb.w - 4, Math.max(...lines.map((l) => textWidth(typeof l === 'string' ? l : l.text))) + 8);
-  const h = lines.length * 7 + 5;
+  const w = Math.min(fb.w - 8, Math.max(...lines.map((l) => textWidth(typeof l === 'string' ? l : l.text))) + 20);
+  const h = lines.length * 11 + 13;
   const x = Math.floor((fb.w - w) / 2);
   const y = Math.floor((fb.h - h) / 2);
+  fb.rect(x + 2, y + 2, w, h, C.BLACK); // drop shadow
   fb.rect(x, y, w, h, bg);
-  fb.frame(x + 1, y + 1, w - 2, h - 2, border);
+  fb.frame(x + 2, y + 2, w - 4, h - 4, border);
+  fb.frame(x + 4, y + 4, w - 8, h - 8, C.DARKGRAY);
   lines.forEach((l, i) => {
     const { text, c } = typeof l === 'string' ? { text: l, c: color } : l;
-    fb.text(text, x + w / 2, y + 4 + i * 7, c, { align: 'center' });
+    fb.text(text, x + w / 2, y + 8 + i * 11, c, { align: 'center' });
   });
 }
 
@@ -36,6 +38,7 @@ export function playGame(term, Game, settings, opts = {}) {
     const colorMode = resolveColorMode(settings.colorMode);
     const renderer = new Renderer(colorMode);
     const fb = new Framebuffer(Game.width, Game.height);
+    const half = new Framebuffer(Game.width / 2, Game.height / 2);
     const input = new Input();
     const sound = settings.sound ? new Sound(true) : silent;
     const fps = opts.fps || settings.fps || 30;
@@ -48,7 +51,7 @@ export function playGame(term, Game, settings, opts = {}) {
     let lastScore = 0;
     let statusCache = '';
     let tooSmall = false;
-    let layout = { ox: 0, oy: 0 };
+    let layout = { ox: 0, oy: 0, scale: 1, rows: Game.height / 2 };
     let timer = null;
     let frames = 0;
     let fpsShown = 0;
@@ -79,12 +82,17 @@ export function playGame(term, Game, settings, opts = {}) {
       term.clear();
       renderer.invalidate();
       statusCache = '';
-      const need = { cols: Game.width, rows: Game.height / 2 };
-      tooSmall = term.cols < need.cols || term.rows < need.rows;
+      // Full size needs width x height/2 cells. If that doesn't fit, show the
+      // game at half size rather than refusing to run.
+      const fits = (k) => term.cols >= Game.width / k && term.rows >= Game.height / 2 / k + 1;
+      layout.scale = fits(1) ? 1 : 2;
+      const need = { cols: Game.width / layout.scale, rows: Game.height / 2 / layout.scale };
+      tooSmall = !fits(layout.scale);
+      layout.rows = need.rows;
       layout.ox = Math.max(0, Math.floor((term.cols - need.cols) / 2));
       layout.oy = Math.max(0, Math.floor((term.rows - need.rows - 1) / 2));
       if (tooSmall) {
-        const msg = `Terminal too small: need ${need.cols}x${need.rows}, have ${term.cols}x${term.rows}. Resize or press Q.`;
+        const msg = `Terminal too small: need ${need.cols}x${need.rows + 1}, have ${term.cols}x${term.rows}. Resize or press Q.`;
         term.write(moveTo(Math.floor(term.rows / 2), 0) + `\x1b[33m${msg.slice(0, term.cols)}\x1b[0m`);
       }
     };
@@ -178,9 +186,11 @@ export function playGame(term, Game, settings, opts = {}) {
       const fpsTxt = settings.showFps ? `${fpsShown}fps  ` : '';
       const room = Math.max(0, term.cols - layout.ox - recTxt.length - fpsTxt.length - 1);
       let hint = `${Game.title.toUpperCase()}  ·  ${Game.controls}  ·  P pause  R rec  Q quit`;
-      if (hint.length > room) hint = `${Game.controls}  ·  P R Q`.slice(0, room);
-      const text = `\x1b[31m${recTxt}\x1b[33m${fpsTxt}\x1b[0m\x1b[2m${hint}\x1b[0m`;
-      const row = layout.oy + Game.height / 2;
+      if (layout.scale > 1) hint = `HALF SIZE · enlarge to ${Game.width}x${Game.height / 2 + 1} (or zoom out) for full detail`;
+      else if (hint.length > room) hint = `${Game.controls}  ·  P R Q`;
+      const style = layout.scale > 1 ? '\x1b[33m' : '\x1b[2m';
+      const text = `\x1b[31m${recTxt}\x1b[33m${fpsTxt}\x1b[0m${style}${hint.slice(0, room)}\x1b[0m`;
+      const row = layout.oy + layout.rows;
       if (row >= term.rows || text === statusCache) return '';
       statusCache = text;
       return `${moveTo(row, layout.ox)}\x1b[0m\x1b[2K${text}`;
@@ -190,8 +200,10 @@ export function playGame(term, Game, settings, opts = {}) {
       if (!Game.mouse) return;
       // Convert terminal mouse cell to game pixel coordinates.
       const m = input.mouse;
-      game.pointer = { x: m.x - layout.ox, y: (m.y - layout.oy) * 2 + 1 };
-      game.clicks = input.takeClicks().map((c) => ({ x: c.x - layout.ox, y: (c.y - layout.oy) * 2 + 1 }));
+      const k = layout.scale;
+      const at = (p) => ({ x: (p.x - layout.ox) * k + (k >> 1), y: (p.y - layout.oy) * 2 * k + k });
+      game.pointer = at(m);
+      game.clicks = input.takeClicks().map(at);
     };
 
     let acc = 0;
@@ -207,7 +219,8 @@ export function playGame(term, Game, settings, opts = {}) {
       }
       if (!tooSmall) {
         draw();
-        term.write(renderer.render(fb, layout.ox, layout.oy) + status());
+        const out = layout.scale === 1 ? fb : fb.downsample(half);
+        term.write(renderer.render(out, layout.ox, layout.oy) + status());
       }
       frames++;
       if (start - fpsWindow >= 1000) {

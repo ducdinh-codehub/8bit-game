@@ -77,8 +77,10 @@ export class Terminal {
   setMouse(on) {
     if (on === this.mouseOn) return;
     this.mouseOn = on;
-    // 1003 = report all motion, 1006 = SGR encoding
-    this.write(on ? `${ESC}[?1003h${ESC}[?1006h` : `${ESC}[?1003l${ESC}[?1006l`);
+    // 1000 = clicks, 1002 = drag, 1003 = all motion, 1006 = SGR encoding.
+    // Terminals pick the richest mode they support; without 1006 they fall
+    // back to legacy X10 bytes, which the input parser also understands.
+    this.write(on ? `${ESC}[?1000h${ESC}[?1002h${ESC}[?1003h${ESC}[?1006h` : `${ESC}[?1006l${ESC}[?1003l${ESC}[?1002l${ESC}[?1000l`);
   }
 
   write(s) {

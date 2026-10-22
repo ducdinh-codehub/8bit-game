@@ -38,6 +38,9 @@ export const SFX = {
   gameover: [note(523, 150), note(392, 150), note(330, 150), note(262, 400, { to: 196 })],
   start: [784, 1047, 1319, 1568].map((f) => note(f, 70)),
   select: [note(880, 30, { duty: 0.25, vol: 0.2 })],
+  laser: [note(1800, 70, { to: 500, duty: 0.25, vol: 0.2 })],
+  boom: [noise(280, { f: 2400, to: 120, vol: 0.45 })],
+  dive: [note(1400, 450, { to: 350, duty: 0.5, vol: 0.12 })],
 };
 
 export function synth(parts) {

@@ -24,6 +24,8 @@ test('parses legacy, kitty and mouse input', () => {
   assert.equal(k.ch, 'A');
   const [m] = parseInput('\x1b[<0;10;5M');
   assert.deepEqual([m.type, m.x, m.y, m.action], ['mouse', 9, 4, 'down']);
+  const [x10] = parseInput(`\x1b[M${String.fromCharCode(32, 82, 52)}`);
+  assert.deepEqual([x10.type, x10.x, x10.y, x10.action], ['mouse', 49, 19, 'down']);
   const [cc] = parseInput('\x03');
   assert.ok(cc.ctrl && cc.name === 'c');
 });
@@ -164,4 +166,40 @@ test('wav synth produces audio', () => {
   assert.ok(s.length > 2000);
   const w = wav(s);
   assert.equal(w.subarray(0, 4).toString(), 'RIFF');
+});
+
+test('star striker: tracking and firing destroys aliens', () => {
+  const Game = findGame('galaga');
+  const input = fakeInput();
+  const game = new Game({ sound: silent, difficulty: 'easy', best: 0 });
+  input.handle({ type: 'key', name: 'space', event: 'press', kitty: true });
+  for (let f = 0; f < 3000 && !game.gameOver; f++) {
+    const target = game.enemies.find((e) => e.state !== 'enter');
+    const want = target ? Math.sign(target.x - game.ship.x) : 0;
+    for (const [dir, k] of [[-1, 'left'], [1, 'right']])
+      input.handle({ type: 'key', name: k, event: want === dir ? 'press' : 'release', kitty: true });
+    game.update(input);
+    input.endStep();
+  }
+  assert.ok(game.score >= 500, `score ${game.score}`);
+});
+
+test('star striker: moves and fires at once without key-release support', () => {
+  const Game = findGame('space');
+  const input = new Input(); // legacy terminal: only key presses and auto-repeat
+  let now = 0;
+  input.now = () => now;
+  const game = new Game({ sound: silent, difficulty: 'normal', best: 0 });
+  const startX = game.ship.x;
+  let fired = 0;
+  for (let f = 0; f < 120; f++) {
+    now = (f * 1000) / 60;
+    if (f % 2 === 0) input.handle({ type: 'key', name: 'left', event: 'press' }); // ~30 Hz key repeat
+    const before = game.shots.length;
+    game.update(input);
+    input.endStep();
+    if (game.shots.length > before) fired++;
+  }
+  assert.ok(game.ship.x < startX - 50, `ship moved to x=${game.ship.x}`);
+  assert.ok(fired >= 5, `fired ${fired} shots while moving`);
 });

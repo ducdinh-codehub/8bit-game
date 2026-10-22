@@ -8,9 +8,13 @@ can share your best runs.
 npx 8bit-arcade
 ```
 
-| Pipe Runner | Blockfall | Duck Blaster | Snake |
-| :-: | :-: | :-: | :-: |
-| ![Pipe Runner](docs/pipe-runner.gif) | ![Blockfall](docs/blockfall.gif) | ![Duck Blaster](docs/duck-blaster.gif) | ![Snake](docs/snake.gif) |
+| Pipe Runner | Blockfall | Duck Blaster |
+| :-: | :-: | :-: |
+| ![Pipe Runner](docs/pipe-runner.gif) | ![Blockfall](docs/blockfall.gif) | ![Duck Blaster](docs/duck-blaster.gif) |
+
+| Star Striker | Snake |
+| :-: | :-: |
+| ![Star Striker](docs/star-striker.gif) | ![Snake](docs/snake.gif) |
 
 _Every GIF above was recorded by the arcade's own recorder._
 
@@ -22,6 +26,7 @@ _Every GIF above was recorded by the arcade's own recorder._
 | 2 | **Snake** | `8bit snake` | the classic (1976) | arrows / `WASD` |
 | 3 | **Blockfall** | `8bit tetris` | Tetris (1984) | `←` `→` move · `↑`/`X` rotate · `Z` rotate back · `↓` soft drop · `Space` hard drop · `C` hold |
 | 4 | **Duck Blaster** | `8bit duck` | Duck Hunt (1984) | mouse to aim and click to shoot, or arrows + `Space` |
+| 5 | **Star Striker** | `8bit space` | Galaga (1981) | `←` `→` move (the ship fires automatically) · `Space` extra shot |
 
 In every game: `P` pause · `R` start/stop recording · `Q`/`Esc` pause, then `Q` again to quit.
 
@@ -29,6 +34,7 @@ In every game: `P` pause · `R` start/stop recording · `Q`/`Esc` pause, then `Q
 - **Snake**: speeds up as you eat, with timed bonus food. On *easy* the walls wrap around.
 - **Blockfall**: SRS rotation with wall kicks, a 7-bag randomiser, ghost piece, hold, lock delay, and NES-style scoring and gravity curve.
 - **Duck Blaster**: 10 ducks per round, 3 shots per duck, three duck types worth different points, a dog that laughs at you, and harder rounds as you go.
+- **Star Striker**: a 40-alien formation swoops in and sways overhead, then peels off to dive-bomb you. Bosses take two hits, and divers are worth double. Every stage dives faster and fires more.
 
 ## Install
 
@@ -102,13 +108,16 @@ or `EIGHTBIT_HOME` to move them.
 
 ## Terminal tips
 
-- **Size**: games need at least **80×24**. The big banner appears at 80×26 and up.
+- **Size**: games draw at **160×96 pixels**, which needs a **160×49** terminal. Make the
+  window bigger, go full screen, or zoom out (`⌘ -` in Terminal.app and iTerm2). In smaller
+  terminals (down to 80×25) the game still runs, but at half size with less detail.
 - **Best controls**: terminals that support the
   [kitty keyboard protocol](https://sw.kovidgoyal.net/kitty/keyboard-protocol/)
   report real key *releases*, so holding run and jump at the same time works
   perfectly. These include kitty, Ghostty, WezTerm, Alacritty, foot and recent iTerm2.
   Other terminals still work: the arcade guesses held keys from key-repeat.
-- **Colours**: truecolor terminals look best. macOS Terminal.app falls back to 256 colours.
+- **Colours**: truecolor terminals look best. Terminal.app supports truecolor from macOS 26; on
+  older versions it falls back to 256 colours.
 - **Mouse**: Duck Blaster uses standard SGR mouse reporting, which works in nearly
   every modern terminal and in tmux with `set -g mouse on`.
 
@@ -116,7 +125,8 @@ or `EIGHTBIT_HOME` to move them.
 
 - **Pixels**: each terminal cell shows two vertical pixels with `▀` (foreground =
   top, background = bottom), so pixels come out roughly square. Every game draws
-  into an 80×48 framebuffer of NES palette indices.
+  into a 160×96 framebuffer of NES palette indices. If the terminal is too small,
+  the framebuffer is shrunk 2:1 before rendering.
 - **Renderer**: the renderer diffs each frame against the last one and only sends
   the cells that changed.
 - **Game loop**: game logic runs on a fixed 60 Hz timestep. Rendering runs at your
@@ -144,7 +154,7 @@ A game is a class with a few static fields and three methods:
 export default class MyGame {
   static id = 'my-game'; static title = 'My Game'; static short = 'mine';
   static aliases = []; static year = 1982; static description = '…';
-  static controls = 'arrows move'; static width = 80; static height = 48;
+  static controls = 'arrows move'; static width = 160; static height = 96;
   static mouse = false; // true to receive this.pointer / this.clicks
 
   constructor({ sound, difficulty, best }) { this.score = 0; }
@@ -165,9 +175,9 @@ npm test         # headless tests: input parsing, all games simulated, encoders
 
 ## Legal
 
-Pipe Runner, Blockfall and Duck Blaster are original games with original sprites,
+Pipe Runner, Blockfall, Duck Blaster and Star Striker are original games with original sprites,
 made as tributes to classic 1980s titles. They are not affiliated with or endorsed by
-Nintendo or The Tetris Company. *Super Mario Bros.*, *Duck Hunt* and *Tetris* are
+Nintendo, Bandai Namco or The Tetris Company. *Super Mario Bros.*, *Duck Hunt*, *Galaga* and *Tetris* are
 trademarks of their respective owners.
 
 MIT licensed.
